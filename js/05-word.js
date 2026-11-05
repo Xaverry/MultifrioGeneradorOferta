@@ -26,11 +26,11 @@ const genDoc=async lang=>{
    {const v=NV('Grilla metálica'),t=EN?NGR_EN:NGR;if(g){if(v==='Sí')g+=mkP(t[0]);else if(v==='No')ni('Grilla metálica',t[1])}}
    x=x.slice(0,dh.s)+g+x.slice(dh.e)}
   const MV=['Grúa','Conexiones eléctricas','Trabajo civil','Sellos corta fuego','Canalización y cableado',...NEXTRA],KP=['Exonerado','Pasarelas','BMS'];
-  ALLN.forEach(n=>{const t=(EN?NT_EN:NT)[n];if(!t)return;const v=NV(n);let here=[];
+  const hx=[];ALLN.forEach(n=>{const t=(EN?NT_EN:NT)[n];if(!t)return;const v=NV(n);let here=[];
    if(v==='Sí'){if(MV.includes(n))notasX.push(...A(t[0]));else here=A(t[0])}
-   else if(v==='No'){if(KP.includes(n))here=A(t[1]);else A(t[1]).forEach(q=>ni(n,q))}
+   else if(v==='No'){if(KP.includes(n))here=A(t[1]);else if(n==='Horario extendido')hx.push(...A(t[1]));else A(t[1]).forEach(q=>ni(n,q))}
    x=rep(x,'[[N:'+n+']]',here)});
-  if(S.tipo==='com')notasX.push(EN?'Our personnel are trained to comply with occupational safety procedures and standards. Should Multifrio be required to provide an occupational safety professional, this can be quoted separately.':'Nuestro personal se encuentra capacitado para acatar los procedimientos y estándares de seguridad ocupacional. De ser necesario que Multifrio disponga de un profesional en seguridad ocupacional, se puede cotizar por aparte.');x=rep(x,'[[NS]]',notasX);noInc.sort((a,b)=>a[0]-b[0]);const cm=S.tipo==='com',niL=(cm?(EN?NID0_EN:NID0):[]).concat(noInc.map(q=>q[1]),cm?(EN?NID_EN:NID):[]);x=rep(x,'[[NOINC]]',niL);x=sec(x,'NI',niL.length>0);
+  if(S.tipo==='com')notasX.push(EN?'Our personnel are trained to comply with occupational safety procedures and standards. Should Multifrio be required to provide an occupational safety professional, this can be quoted separately.':'Nuestro personal se encuentra capacitado para acatar los procedimientos y estándares de seguridad ocupacional. De ser necesario que Multifrio disponga de un profesional en seguridad ocupacional, se puede cotizar por aparte.');notasX.push(...hx);x=rep(x,'[[NS]]',notasX);noInc.sort((a,b)=>a[0]-b[0]);const cm=S.tipo==='com',niL=(cm?(EN?NID0_EN:NID0):[]).concat(noInc.map(q=>q[1]),cm?(EN?NID_EN:NID):[]);x=rep(x,'[[NOINC]]',niL);x=sec(x,'NI',niL.length>0);
   x=sec(x,'VE',NV('Tabla VE')==='Sí');x=sec(x,'AL',NV('Tabla Allowances')==='Sí');
   x=rep(x,'[[TN]]',[...new Set(GR.eq.flatMap(cp).map(it=>it.cat==='dp'?'Dampers':it.cat==='te'?(EN?cap(nm(it.item,it.d)[1]):(TEN[it.d.t]?(n=>n[0].toUpperCase()+n.slice(1))(TEN[it.d.t][1]):'Terminales de aire')):(EN?cap(nm(it.item,it.d)[0]):it.item)))]);
   z.file('word/document.xml',x);}finally{EN=false}
