@@ -41,7 +41,7 @@ function duBE(d){const M={HG:'galvanized steel sheet',HN:'black iron sheet',SS30
  if(d.ca&&d.ca!=='N/A')Q.push('Designed for an external static pressure of '+d.ca+'” w.g.');return Q}
 function tuVE(d){return 'Supply and installation of copper refrigerant piping with external rubber foam insulation'+(d.ai?', brand '+d.ai:'')+', 3/4” thick for the suction line and 1/2” thick for the liquid line. An exterior coating of Surfastyl paint is included for copper piping exposed to the weather.'}
 function tuRE(d){const p=[],MTE={HN:'black iron',PVC:'PVC','PVC-Preaislada':'pre-insulated PVC','HN-Preaislada':'pre-insulated black iron'},AE={'K-Flex':'K-Flex flexible closed-cell elastomeric',Kflex:'K-Flex flexible closed-cell elastomeric',Armacell:'Armacell flexible elastomeric'},CE={Aluminio:'aluminum',Inoxidable:'stainless steel',Inox:'stainless steel',PVC:'PVC'};
- if(d.ti)p.push(d.ti==='ERW'?'ERW':d.ti==='Soldada'?'welded':'type '+d.ti);
+ if(d.ti)p.push(d.ti==='ERW'?'ERW':d.ti==='Sin costura'?'seamless':'type '+d.ti);
  if(d.ma)p.push((d.ma==='HN'?'carbon steel':(MTE[d.ma]||d.ma))+' material');
  if(d.cd)p.push('schedule '+d.cd);
  if(d.ma==='HN')p.push('threaded for diameters smaller than 2 ½ in and welded for larger diameters');
@@ -59,7 +59,7 @@ function duB(d){
  return L}
 function tuV(d){if(EN)return tuVE(d);return 'Suministro e instalación de tuberías de cobre para refrigerante con aislamiento externo de espuma de hule'+(d.ai?' marca '+d.ai:'')+' de 3/4” de espesor para la línea de succión y de 1/2” de espesor para la línea de líquido. Se considera recubrimiento exterior con pintura Surfastyl para la tubería de cobre expuesta a la intemperie.'}
 function tuR(d){if(EN)return tuRE(d);const p=[];
- if(d.ti)p.push(d.ti==='ERW'?'ERW':d.ti==='Soldada'?'soldada':'tipo '+d.ti);
+ if(d.ti)p.push(d.ti==='ERW'?'ERW':d.ti==='Sin costura'?'sin costura':'tipo '+d.ti);
  if(d.ma)p.push('material '+(d.ma==='HN'?'acero al carbono':(MT[d.ma]||d.ma)));
  if(d.cd)p.push('cédula '+d.cd);
  if(d.ma==='HN')p.push('roscado para diámetros menores a 2 ½ in y soldado para diámetros mayores');
@@ -88,19 +88,19 @@ const cats={
   items:{'Ducto':{ap:['Aire acondicionado','Aire fresco','Extracción'],ma:['HG','HN','SS304','SS316'],ca:['6','4','3','2','N/A'],ai:['Sí','No'],r:['Estándar','R6'],ti:['TDC','Spiro ducto','S-Corredera','Grafado'],ck:'c'}}},
  tu:{label:'Tuberías',lead:d=>d.sv==='VRF/DX'?'':EN?(SVE[d.sv]||d.sv)+' piping':'Tubería de '+(SVT[d.sv]||d.sv.toLowerCase()),rest:d=>d.sv==='VRF/DX'?tuV(d):tuR(d),skip:['sv'],
   fields:[fd('sv','Servicio',0,'',1),fd('ma','Material'),fd('ti','Tipo'),fd('cd','Cédula'),fd('ai','Aislamiento'),fd('es','Espesor'),fd('ch','Chaqueta'),fd('ub','Ubicación')],
-  items:{'Tubería':{sv:['Agua helada','Agua de procesos','Drenaje condensados','VRF/DX'],ti:['ERW','Soldada'],cd:['80','40','SDR32.5','SDR26'],ma:['HN','HN-Preaislada','PVC-Preaislada','PVC'],ai:['Armacell','K-Flex','Aerofoam'],es:['1','2'],ch:['Aluminio','Inoxidable','PVC','No'],ub:['Exterior','Interior']}}}
+  items:{'Tubería':{sv:['Agua helada','Agua de procesos','Drenaje condensados','VRF/DX'],ti:['ERW','Sin costura'],cd:['80','40','SDR32.5','SDR26'],ma:['HN','HN-Preaislada','PVC-Preaislada','PVC'],ai:['Armacell','K-Flex','Aerofoam'],es:['1','2'],ch:['Aluminio','Inoxidable','PVC','No'],ub:['Exterior','Interior']}}}
 };
 const NOTES=['Grúa','Soportería tubería','Grilla metálica','Pasarelas','Pasivado','Conexiones eléctricas','Trabajo civil','Sellos corta fuego','BMS','Canalización y cableado','Exonerado','Pruebas certificadas de agua','Pruebas certificadas de aire','Horario extendido','Mantenimiento','BIM','EHS','Tabla VE','Tabla Allowances'];
 
 ['bo:Bombeo','mj:Manejadoras','vr:VRF/DX'].forEach(q=>{const[k,l]=q.split(':');cats[k]=Object.assign({},cats.ch,{label:l})});
-Object.assign(cats.vr,{selAfter:'q',refOn:1,itOff:it=>/^Condensadora/.test(it)?['t']:/^(Termostato|Control central|Gateway)$/.test(it)?['t','c','e']:[],base:{q:'n',t:['Pared alta','Piso cielo','Cassette 2 vías','Cassette 4 vías','Fan coil','Manejadora'],m:['Trane','York','Samsung','Midea','Daikin'],mo:'t',c:'t',r:R,e:['115/1/60','208/1/60','220/1/60','208/3/60','220/3/60','460/3/60']},items:Object.fromEntries(['Condensadora VRF','Condensadora DX','Evaporadora VRF','Evaporadora DX','Termostato','Control central','Gateway'].map(n=>[n,{}]))});
+Object.assign(cats.vr,{selAfter:'q',refOn:1,itOff:it=>/^Condensadora/.test(it)?['t']:/^(Termostato|Control central|Gateway)$/.test(it)?['t','c','e','r']:['r'],base:{q:'n',t:['Pared alta','Piso cielo','Cassette 2 vías','Cassette 4 vías','Fan coil','Manejadora'],m:['Trane','York','Samsung','Midea','Daikin'],mo:'t',c:'t',r:R,e:['115/1/60','208/1/60','220/1/60','208/3/60','220/3/60','460/3/60']},items:Object.fromEntries(['Condensadora VRF','Condensadora DX','Evaporadora VRF','Evaporadora DX','Termostato','Control central','Gateway'].map(n=>[n,{}]))});
 Object.assign(cats.mj,{selAfter:'q',acIn:1,skip:['q','ac'],
- fields:[fd('q','Cantidad',0,'',1),fd('m','Marca',pre('marca')),fd('mo','Modelo',pre('modelo')),fd('c','Capacidad',pre('capacidad'),'Ej. 100 TR'),fd('r','Refrigerante',v=>v==='Agua helada'?'enfriada por agua':'refrigerante '+v),fd('e','Eléctrico',ele),fd('b','BMS',v=>'protocolo de comunicación BMS '+v),fd('ac','Accesorios'),fd('at','Información de accesorios',v=>v,'Detalle de accesorios')],
- base:{q:'n',m:['Trane','York','Midea'],mo:'t',c:'t',r:['Agua helada','R410A','R534A'],e:['220/3/60','460/3/60'],b:['BACnet IP','BACnet MS/TP','Modbus'],ac:'C',at:'t'},
+ fields:[fd('q','Cantidad',0,'',1),fd('m','Marca',pre('marca')),fd('mo','Modelo',pre('modelo')),fd('c','Capacidad',pre('capacidad'),'Ej. 100 TR'),fd('r','Refrigerante',v=>v==='Agua helada'?'enfriada por agua':'refrigerante '+v),fd('e','Eléctrico',ele),fd('ac','Accesorios'),fd('at','Información de accesorios',v=>v,'Detalle de accesorios')],
+ base:{q:'n',m:['Trane','York','Midea'],mo:'t',c:'t',r:['Agua helada','R410A','R534A'],e:['220/3/60','460/3/60'],ac:'C',at:'t'},
  items:Object.fromEntries(['Manejadora de aire','Make-Up','DOAS','Paquete','Blower coil','Fan coil'].map(n=>[n,{}]))});
-Object.assign(cats.ch,{selAfter:'q',acIn:1,skip:['q','ac'],
- fields:[fd('q','Cantidad',0,'',1),fd('t','Tipo',v=>'con compresores tipo '+v.toLowerCase()),fd('m','Marca',pre('marca')),fd('mo','Modelo',pre('modelo')),fd('c','Capacidad',pre('capacidad'),'Ej. 100 TR'),fd('r','Refrigerante',pre('refrigerante')),fd('e','Eléctrico',ele),fd('ac','Accesorios'),fd('at','Información de accesorios',v=>v,'Detalle de accesorios')],
- base:{q:'n',t:['Scroll','Tornillo','Centrífugo'],m:['Trane','York','Midea'],mo:'t',c:'t',r:['R134A','R534A','R32A','R410A','R513A'],e:['220/3/60','460/3/60'],ac:'C',at:'t'},
+Object.assign(cats.ch,{selAfter:'q',acIn:1,itOff:it=>it==='Enfriado por agua'?['r']:[],skip:['q','ac'],
+ fields:[fd('q','Cantidad',0,'',1),fd('t','Tipo',v=>'con compresores tipo '+v.toLowerCase()),fd('m','Marca',pre('marca')),fd('mo','Modelo',pre('modelo')),fd('c','Capacidad',pre('capacidad'),'Ej. 100 TR'),fd('r','Refrigerante',pre('refrigerante')),fd('e','Eléctrico',ele),fd('b','BMS',v=>'protocolo de comunicación BMS '+v),fd('ac','Accesorios'),fd('at','Información de accesorios',v=>v,'Detalle de accesorios')],
+ base:{q:'n',t:['Scroll','Tornillo','Centrífugo'],m:['Trane','York','Midea'],mo:'t',c:'t',r:['R134A','R534A','R32A','R410A','R513A'],e:['220/3/60','460/3/60'],b:['BACnet IP','BACnet MS/TP','Modbus'],ac:'C',at:'t'},
  items:Object.fromEntries(['Enfriado por aire','Enfriado por agua','Para procesos','Modular'].map(n=>[n,{}]))});
 Object.assign(cats.bo,{selAfter:'q',acIn:1,skip:['q','ac'],
  fields:[fd('q','Cantidad',0,'',1),fd('m','Marca',pre('marca')),fd('mo','Modelo',pre('modelo')),fd('c','Caudal',pre('caudal'),'Ej. 200 GPM'),fd('e','Eléctrico',ele),fd('ac','Accesorios'),fd('at','Información de accesorios',v=>v,'Detalle de accesorios')],
@@ -113,3 +113,10 @@ cats.dp={label:'Dampers',lead:(d,it)=>EN?qleadA(d,it,d.t?(DPE[d.t]||d.t.toLowerC
  rest:d=>{const r=[];if(d.m)r.push(L('marca ','brand ')+d.m);if(d.mo)r.push(L('modelo ','model ')+d.mo);if(d.tm)r.push(L('tamaño ','size ')+d.tm);return (r.length?', '+r.join(', '):'')+dpS(d.t)+'.'},
  fields:[fd('q','Cantidad',0,'',1),fd('gz','Generalizar'),fd('t','Tipo'),fd('m','Marca',pre('marca')),fd('mo','Modelo',pre('modelo')),fd('tm','Tamaño',pre('tamaño'),'Ej. 24x24')],
  items:{'Damper':{q:'n',gz:'C',t:['Balance','Motorizado','Contra flujo','Corta fuego 1.5H','Corta fuego 3H','Corta humo'],m:['Greenheck','Pottorff','Ruskin'],mo:'t',tm:'t'}}};
+const VEND=[
+ {n:'Esteban Salazar',p:'Business Consultant',pe:'Business Consultant',t:'4404-7133 / 7205-2075'},
+ {n:'Ing. Mauricio Vargas Guerrero',p:'Gerente de Cuentas Claves',pe:'Key Accounts Manager',t:'4404-9888 / 8708-3258'},
+ {n:'Karolay Mora',p:'Asesora de ventas',pe:'Sales Advisor',t:'4404-9888 / 7017-5374'},
+ {n:'Deivid Herrera',p:'Ingeniero Comercial',pe:'Commercial Engineer',t:'4404-7137 / 7205-1345'},
+ {n:'Ing. Aristides Venegas Vargas',p:'Subgerente de Ventas Industriales',pe:'Assistant Manager, Industrial Sales',t:'4404-7151 / 7205-2109'},
+ {n:'Ing. Ariel Fonseca Rodríguez',p:'Ingeniero Comercial',pe:'Commercial Engineer',t:'4404-9888 / 7205-2286'}];

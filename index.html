@@ -4,8 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Generador de oferta</title>
-<link rel="stylesheet" href="styles.css">
 <script src="js/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert2/11.10.5/sweetalert2.all.min.js"></script>
+<link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <main>
@@ -19,6 +20,7 @@
 <div><label for="pro">Proyecto</label><input id="pro" type="text"></div>
 <div><label for="ini">Iniciales (pie de página)</label><input id="ini" type="text" placeholder="Ej. JC/AV"></div>
 <div><label for="seq">Consecutivo (número de propuesta)</label><input id="seq" type="text" placeholder="Ej. 2026-01234"></div>
+<div><label for="ven">Vendedor</label><select id="ven"></select></div>
 <div style="grid-column:1/-1"><label for="des">Descripción (se muestra como «Descripción para el proyecto …»)</label><input id="des" type="text" placeholder="Ej. Suministro e instalación del sistema de agua helada"></div>
 </div></section>
 
@@ -37,6 +39,7 @@
 <section class="card"><h2>Ítems de la oferta <span id="cnt" style="color:var(--mu);font-weight:400"></span></h2><div id="list"></div></section>
 
 <section class="card"><h2>Alcance y condiciones</h2>
+<div class="tabs" id="tabs-nt"></div>
 <div class="notes" id="notes"></div></section>
 
 <div class="row"><button class="btn" id="gen" disabled>Generar oferta</button><button class="btn" id="gen-en" disabled>Generar oferta-Inglés</button><button class="btn sec" id="clr">Limpiar todo</button><button class="btn sec" id="clrc" hidden>Cancelar</button><span class="msg" id="gm"></span></div>

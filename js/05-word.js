@@ -13,18 +13,25 @@ const genDoc=async lang=>{
   const H=S.h,cp=k=>S.items.filter(i=>i.cat===k),tx=it=>parts(it).join('');
   const rp=(t,v)=>{x=x.split(t).join(xe(v))};
   EN=lang==='en';try{
+  const noInc=[],notasX=[],ni=(n,t)=>noInc.push([ALLN.indexOf(n),t]);
+  {const v=VEND.find(q=>q.n===H.ven)||{n:'Aristides Venegas V',p:'Subgerente de ventas',pe:'Assistant Sales Manager',t:'7205-2109'};rp('[[VEN]]',v.n);rp('[[PUE]]',lang==='en'?v.pe:v.p);rp('[[TEL]]',v.t)}
   rp('[[CLIENTE]]',H.cli||'');rp('[[CONSTRUCTORA]]',H.con||'');const dd=H.des||L('Suministro e instalación del sistema HVAC','Supply and installation of the HVAC system');rp('[[DESCT]]',dd);rp('[[DESC]]',dd);rp('[[PROYECTO_UP]]',(H.pro||'').toUpperCase());rp('[[PROYECTO]]',H.pro||'');
   x=rep(x,'[[EQ]]',GR.eq.flatMap(cp).flatMap(it=>[tx(it),...(it.ex||[])]));
   const NP=(parOf(x,'[[TUB]]')||{}).xml||'',mkP=t=>NP.replace('[[TUB]]',()=>xe(t));
   const LT=cp('tu').flatMap(it=>[tx(it),...(it.ex||[])]);
-  const sn=nSel(S.notes['Soportería tubería'],EN?NSO_EN:NSO);if(sn&&LT.length)LT.push(sn);
+  {const v=NV('Soportería tubería'),t=EN?NSO_EN:NSO;if(LT.length){if(v==='Sí')LT.push(t[0]);else if(v==='No')ni('Soportería tubería',t[1])}}
   x=rep(x,'[[TUB]]',LT);
   const dh=parOf(x,'[[DH]]'),db=parOf(x,'[[DB]]');
   if(dh&&db){x=x.slice(0,db.s)+x.slice(db.e);let g=cp('du').map(it=>dh.xml.replace('[[DH]]',()=>xe(cats.du.lead(it.d)+':'))+duB(it.d).concat(it.ex||[]).map(l=>db.xml.replace('[[DB]]',()=>xe(l))).join('')).join('');
-   const gn=nSel(S.notes['Grilla metálica'],EN?NGR_EN:NGR);if(gn&&g)g+=mkP(gn);
+   {const v=NV('Grilla metálica'),t=EN?NGR_EN:NGR;if(g){if(v==='Sí')g+=mkP(t[0]);else if(v==='No')ni('Grilla metálica',t[1])}}
    x=x.slice(0,dh.s)+g+x.slice(dh.e)}
-  NOTES.forEach(n=>{const t=(EN?NT_EN:NT)[n];if(!t)return;const v=S.notes[n];x=rep(x,'[[N:'+n+']]',v==='Sí'?A(t[0]):v==='No'?A(t[1]):[])});
-  x=sec(x,'VE',S.notes['Tabla VE']==='Sí');x=sec(x,'AL',S.notes['Tabla Allowances']==='Sí');
+  const MV=['Grúa','Conexiones eléctricas','Trabajo civil','Sellos corta fuego','Canalización y cableado',...NEXTRA],KP=['Exonerado','Pasarelas','BMS'];
+  ALLN.forEach(n=>{const t=(EN?NT_EN:NT)[n];if(!t)return;const v=NV(n);let here=[];
+   if(v==='Sí'){if(MV.includes(n))notasX.push(...A(t[0]));else here=A(t[0])}
+   else if(v==='No'){if(KP.includes(n))here=A(t[1]);else A(t[1]).forEach(q=>ni(n,q))}
+   x=rep(x,'[[N:'+n+']]',here)});
+  if(S.tipo==='com')notasX.push(EN?'Our personnel are trained to comply with occupational safety procedures and standards. Should Multifrio be required to provide an occupational safety professional, this can be quoted separately.':'Nuestro personal se encuentra capacitado para acatar los procedimientos y estándares de seguridad ocupacional. De ser necesario que Multifrio disponga de un profesional en seguridad ocupacional, se puede cotizar por aparte.');x=rep(x,'[[NS]]',notasX);noInc.sort((a,b)=>a[0]-b[0]);const cm=S.tipo==='com',niL=(cm?(EN?NID0_EN:NID0):[]).concat(noInc.map(q=>q[1]),cm?(EN?NID_EN:NID):[]);x=rep(x,'[[NOINC]]',niL);x=sec(x,'NI',niL.length>0);
+  x=sec(x,'VE',NV('Tabla VE')==='Sí');x=sec(x,'AL',NV('Tabla Allowances')==='Sí');
   x=rep(x,'[[TN]]',[...new Set(GR.eq.flatMap(cp).map(it=>it.cat==='dp'?'Dampers':it.cat==='te'?(EN?cap(nm(it.item,it.d)[1]):(TEN[it.d.t]?(n=>n[0].toUpperCase()+n.slice(1))(TEN[it.d.t][1]):'Terminales de aire')):(EN?cap(nm(it.item,it.d)[0]):it.item)))]);
   z.file('word/document.xml',x);}finally{EN=false}
   const ff=z.file('word/footer1.xml');if(ff){const f=await ff.async('string');z.file('word/footer1.xml',f.split('[[INI]]').join(xe(H.ini||'')))}
@@ -47,3 +54,4 @@ const genDoc=async lang=>{
  }catch(e){gm.textContent='No se pudo generar el documento'+(e&&e.message?': '+e.message:'')}
 };
 $('#gen').addEventListener('click',()=>genDoc('es'));$('#gen-en').addEventListener('click',()=>genDoc('en'));
+

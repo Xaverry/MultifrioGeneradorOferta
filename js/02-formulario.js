@@ -1,4 +1,4 @@
-let S={h:{cli:'',con:'',pro:'',des:'',ini:'',seq:''},items:[],notes:{}};
+let S={h:{cli:'',con:'',pro:'',des:'',ini:'',seq:'',ven:''},items:[],notes:{}};
 const GR={eq:['ch','bo','mj','vr','ve','te','dp'],ma:['du','tu']},GT={eq:['Agregar equipos','Editar equipo'],ma:['Agregar material','Editar material']},CUR={eq:{cat:'ch',item:'Chiller'},ma:{cat:'du',item:'Ducto'}},gOf=c=>GR.eq.includes(c)?'eq':'ma';
 let editId=null,editG=null;
 const KEY='oferta_hvac_v1';
@@ -60,7 +60,7 @@ function syncDu(g){
  const acI=document.querySelector('#form-'+g+' .f[data-k="ac"] input'),aw=document.querySelector('#form-'+g+' .f[data-k="at"]');
  if(acI&&aw){const x=aw.querySelector('input'),off=!acI.checked;x.disabled=off;if(off)x.value='';aw.style.opacity=off?'.5':''}
  const ioff=cats[CUR[g].cat].itOff;
- if(ioff){const L=ioff(CUR[g].item);['t','c','e'].forEach(k=>{const w=document.querySelector('#form-'+g+' .f[data-k="'+k+'"]');if(!w)return;const x=w.querySelector('select,input:not(.oth)'),o=w.querySelector('.oth'),off=L.includes(k);x.disabled=off;if(off){x.value='';if(o)o.hidden=true}w.style.opacity=off?'.5':''})}
+ if(ioff){const L=ioff(CUR[g].item);['t','c','e','r'].forEach(k=>{const w=document.querySelector('#form-'+g+' .f[data-k="'+k+'"]');if(!w)return;const x=w.querySelector('select,input:not(.oth)'),o=w.querySelector('.oth'),off=L.includes(k);x.disabled=off;if(off){x.value='';if(o)o.hidden=true}w.style.opacity=off?'.5':''})}
  const gzI=document.querySelector('#form-'+g+' .f[data-k="gz"] input');
  if(gzI){const on=gzI.checked,cc=cats[CUR[g].cat],cor=!on&&CUR[g].item==='Cortina de aire';
   (cc.gzOff||[]).forEach(k=>{const w=document.querySelector('#form-'+g+' .f[data-k="'+k+'"]');if(!w)return;const x=w.querySelector('select,input:not(.oth)'),o=w.querySelector('.oth');
@@ -106,8 +106,14 @@ function renderList(){
    return `<div class="it"><div class="c"><p><b>${h(p[0])}</b>${h(p[1])}</p>${ex}</div><div class="a"><button data-a="l" data-id="${it.id}">Agregar línea</button><button data-a="e" data-id="${it.id}">Editar</button><button data-a="d" data-id="${it.id}">Eliminar</button></div></div>`}).join('');
  }).join('');
 }
+const NEXTRA=['Limpieza filtros','Anticorrosivo','Control central','Pintura cocina','FireWrap'];
+const ALLN=NOTES.concat(NEXTRA);
+const NCOM=['Grúa','Trabajo civil','Exonerado','Mantenimiento','EHS','Conexiones eléctricas','Sellos corta fuego','Canalización y cableado','Horario extendido','BIM',...NEXTRA];
+const actN=()=>S.tipo==='com'?NCOM:NOTES;
+const NV=n=>actN().includes(n)?S.notes[n]:undefined;
 function renderNotes(){
- $('#notes').innerHTML=NOTES.map((n,i)=>`<div class="nt"><span>${h(n)}</span><select data-n="${i}"><option value="">—</option><option${S.notes[n]==='Sí'?' selected':''}>Sí</option><option${S.notes[n]==='No'?' selected':''}>No</option></select></div>`).join('');
+ $('#tabs-nt').innerHTML=[['ind','Industriales'],['com','Comerciales']].map(([k,l])=>`<button class="tab${(S.tipo||'ind')===k?' on':''}" data-t="${k}">${l}</button>`).join('');
+ $('#notes').innerHTML=actN().map(n=>`<div class="nt"><span>${h(n)}</span><select data-nn="${h(n)}"><option value="">—</option><option${S.notes[n]==='Sí'?' selected':''}>Sí</option><option${S.notes[n]==='No'?' selected':''}>No</option></select></div>`).join('');
 }
 
 ['eq','ma'].forEach(g=>{
@@ -121,6 +127,8 @@ $('#add-'+g).addEventListener('click',()=>{
  const cur=CUR[g],c=cats[cur.cat],d=collect(g),m=$('#msg-'+g),ed=!!editId&&editG===g;
  m.className='msg';
  const gzn=d.gz==='Sí';
+ {const miss=[];document.querySelectorAll('#form-'+g+' .f').forEach(w=>{if(w.hidden)return;const x=w.querySelector('select,input:not(.oth)');if(!x||x.disabled||x.type==='checkbox')return;const lb=w.querySelector('label').textContent.replace('*','').trim();const v=x.tagName==='SELECT'?(x.value==='__o'?w.querySelector('.oth').value.trim():x.value):x.value.trim();if(!v||(w.dataset.k==='q'&&!(Number(v)>=1)))miss.push(lb)});
+  if(miss.length){m.textContent='';if(window.Swal)Swal.fire({icon:'warning',title:'Falta información',text:'Complete los siguientes campos: '+miss.join(', '),confirmButtonText:'Aceptar'});else m.textContent='Falta información: '+miss.join(', ');return}}
  for(const f of c.fields){if(gzn&&f.k==='q')continue;if(f.r&&!d[f.k]&&(f.k in d)){m.textContent='Falta completar: '+f.l;return}}
  for(const k of (c.gzReq||[])){if(gzn&&!d[k]){m.textContent='Falta completar: '+c.fields.find(f=>f.k===k).l;return}}
  if(d.ac==='Sí'&&!d.at){m.textContent='Falta completar: Información de accesorios';return}
@@ -144,6 +152,10 @@ $('#list').addEventListener('click',e=>{
  if(b.dataset.a==='d'){S.items=S.items.filter(x=>x.id!==it.id);const g0=editG;if(editId===it.id){editId=null;editG=null;renderForm(g0)}save();renderList()}
  else{const g=gOf(it.cat),old=editG;editId=it.id;editG=g;if(old&&old!==g)renderForm(old);CUR[g]={cat:it.cat,item:it.item};renderForm(g);fill(g,it.d);$('#ft-'+g).scrollIntoView({behavior:'smooth'})}
 });
-$('#notes').addEventListener('change',e=>{const i=e.target.dataset.n;if(i===undefined)return;S.notes[NOTES[i]]=e.target.value;save()});
+$('#notes').addEventListener('change',e=>{const n=e.target.dataset.nn;if(n===undefined)return;S.notes[n]=e.target.value;save()});
+$('#tabs-nt').addEventListener('click',e=>{const b=e.target.closest('[data-t]');if(!b)return;S.tipo=b.dataset.t;save();renderNotes()});
+$('#ven').innerHTML='<option value="">Seleccionar…</option>'+VEND.map(v=>`<option>${h(v.n)}</option>`).join('');
+$('#ven').addEventListener('change',e=>{S.h.ven=e.target.value;save()});
 ['cli','con','pro','des','ini','seq'].forEach(k=>$('#'+k).addEventListener('input',e=>{S.h[k]=e.target.value;save()}));
 
+/* ---------- Word (a partir de la plantilla) ---------- */
